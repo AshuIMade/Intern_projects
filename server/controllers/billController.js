@@ -21,15 +21,7 @@ const saveBillAndSendToAPI = async (req, res) => {
 
      userApi.api_key = userApi.api_key ;
     userApi.api_secret = userApi.api_secret ;
-
     
-   
-    
-
-    // Log the userApi to verify it has the correct keys
-    console.log("API Secret:", userApi.api_secret);
-    console.log("API Key:", userApi.api_key);
-
     // Loop through each JSON object (each row from the CSV)
     const results = await Promise.all(
       filename.map(async (row) => {
