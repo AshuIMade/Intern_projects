@@ -15,12 +15,11 @@ function FileUpload() {
   const [fileName, setFileName] = useState("");
   const [errors, setErrors] = useState([]);
   const [noErrors, setNoErrors] = useState(false);
-  const [apiError, setApiError] = useState([]); 
+  const [apiError, setApiError] = useState([]);  
   const [successfulUploads, setSuccessfulUploads] = useState([]); 
   const [filedata, setFiledata] = useState(null);  
 
-  // Function to validate the data in each row 
-  const validateData = (data) => {
+   const validateData = (data) => {
     const newErrors = [];
     const uniqueBillIds = new Set();
 
@@ -43,49 +42,49 @@ function FileUpload() {
         return; 
       }
 
-      if (!bill_id || uniqueBillIds.has(bill_id)) {
+       if (!bill_id || uniqueBillIds.has(bill_id)) {
         newErrors.push(`Row ${index + 1}: Duplicate or invalid bill_id`);
       } else {
         uniqueBillIds.add(bill_id);
       }
 
-      if (!bill_desc || typeof bill_desc !== 'string') {
+       if (!bill_desc || typeof bill_desc !== 'string') {
         newErrors.push(`Row ${index + 1}: Invalid bill_desc`);
       }
 
-      if (!reason || typeof reason !== 'string') {
+       if (!reason || typeof reason !== 'string') {
         newErrors.push(`Row ${index + 1}: Invalid reason`);
       }
 
-      if (isNaN(amount_due) || Number(amount_due) < 0) {
+       if (isNaN(amount_due) || Number(amount_due) < 0) {
         newErrors.push(`Row ${index + 1}: Invalid amount_due`);
       }
 
-      if (!customer_id ) {
+       if (!customer_id ) {
         newErrors.push(`Row ${index + 1}: Invalid customer_id`);
       }
 
-      if (!name || typeof name !== 'string') {
+       if (!name || typeof name !== 'string') {
         newErrors.push(`Row ${index + 1}: Invalid name`);
       }
 
-      if (
+       if (
         typeof partial_pay_allowed !== 'string' ||
         (partial_pay_allowed.toLowerCase() !== 'true' && partial_pay_allowed.toLowerCase() !== 'false')
       ) {
         newErrors.push(`Row ${index + 1}: Invalid partial_pay_allowed`);
       }
 
-      if (isNaN(Date.parse(due_date))) {
+       if (isNaN(Date.parse(due_date))) {
         newErrors.push(`Row ${index + 1}: Invalid due_date`);
       }
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email)) {
         newErrors.push(`Row ${index + 1}: Invalid email`);
       }
 
-      const mobileRegex = /^(09|07|9|7)\d{8}$/;
+       const mobileRegex = /^(09|07|9|7)\d{8}$/;
       if (!mobile || !mobileRegex.test(mobile)) {
         newErrors.push(`Row ${index + 1}: Invalid mobile`);
       }
@@ -123,12 +122,10 @@ function FileUpload() {
   const handleUpload = async () => {
     if (noErrors && filedata) {
       const user = JSON.parse(sessionStorage.getItem('user'));
-
-
+  
       // Access the email
       const email = user.email;
       console.log(email)
-
       try {
         const response = await axios.post('http://localhost:8000/api/Bill/bills', {
           data: filedata,
@@ -145,13 +142,13 @@ function FileUpload() {
         // Iterate over each response item
         result.forEach((res) => {
           if (res.confirmation_code) {
- 
+
             successfulUploads.push({
               bill_id: res.bill_id,
               confirmation_code: res.confirmation_code
             });
           } else if (res.message) {
-
+ 
             apiError.push({
               bill_id: res.bill_id,
               message: res.message
@@ -164,14 +161,12 @@ function FileUpload() {
         setApiError(apiError);
         
       } catch (error) {
-        console.error('Error uploading file:', error.message || error);
-        alert(`Error uploading file: ${error.message || error}`);
+        console.error('Error uploading file:', error.response?.data?.message || error.message || error);
+        // Handle different types of errors, including network errors, and display error message to the user
+        setErrors([`Error uploading file: ${error.response?.data?.message || error.message || 'Unknown error occurred'}`]);
       }
     }
   };
-  
-  
-  
 
   return (
     <>
