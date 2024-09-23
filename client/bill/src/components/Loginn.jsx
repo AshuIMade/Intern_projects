@@ -57,10 +57,18 @@ function Login() {
 
       setMessage(response.data.message);
 
-      if (response.status == 201) {
+       if (response.status == 201) {
+        // Registration successful, switch to sign-in panel
+         document.getElementById("container").classList.remove("right-panel-active");
+         setIsSignUp(false);
 
-        document.getElementById("container").classList.remove("right-panel-active");
-        setIsSignUp(false);
+        setUsername("");  
+        setEmail('');     
+        setPassword('');  
+  
+        //success message
+        setMessage("Registration Successful, Proceed to Sign In");
+
       }
     } catch (error) {
       console.error("There was an error!", error);
