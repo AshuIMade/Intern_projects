@@ -10,10 +10,10 @@ const User = db.users;
 const registerUser = async (req, res) => {
     const { username, email, password } = req.body;
 
-    try {
+   try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await User.create({ username, email, password: hashedPassword });
-        res.status(201).send(user);
+        const user = await User.create({ username:username, email:email, password: hashedPassword });
+        res.status(201).send("success");
     } catch (error) {
         res.status(400).send(error.message);
     }
