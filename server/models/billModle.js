@@ -1,55 +1,65 @@
 module.exports = (sequelize, DataTypes) => {
-  
-  const Bill = sequelize.define("Bill", {
+  return sequelize.define('Bill', {
     bill_id: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      primaryKey: true
     },
     bill_desc: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     reason: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true, 
-      },
+      allowNull: true
     },
     amount_due: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
+      type: DataTypes.DECIMAL,
+      allowNull: false
     },
     customer_id: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
+      allowNull: false
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     partial_pay_allowed: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
+      allowNull: false
     },
     due_date: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: false
     },
     mobile: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        isEmail: true, // Ensure the value follows the email format
-      },
+      allowNull: false
     },
+    confirmation_code: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    uploader: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    createdAt: {  
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW 
+    },
+    file_name: {  
+      type: DataTypes.STRING,
+      allowNull: false 
+    }
+  }, {
+    tableName: 'bills', 
+    timestamps: false
   });
-
-  return Bill;
 };
