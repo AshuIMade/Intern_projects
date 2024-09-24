@@ -1,3 +1,4 @@
+// index.js
 const dbConfig = require("../config/dbConfig.js");
 const { Sequelize, DataTypes } = require('sequelize');
 
@@ -8,7 +9,6 @@ const sequelize = new Sequelize(
     {
         host: dbConfig.HOST,
         dialect: dbConfig.dialect,
-     
 
         pool: {
             max: dbConfig.pool.max,
@@ -31,7 +31,11 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
+// Correctly importing models without .default
 db.users = require('./userModel')(sequelize, DataTypes);
+db.bills = require('./billModle')(sequelize, DataTypes);
+const UserAPI = require('./userapi')(sequelize, Sequelize.DataTypes);
+db.UserAPI = UserAPI;
 
 db.sequelize.sync({ force: false })
     .then(() => {
@@ -39,4 +43,3 @@ db.sequelize.sync({ force: false })
     });
 
 module.exports = db;
-
