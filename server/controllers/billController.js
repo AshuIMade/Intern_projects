@@ -1,4 +1,4 @@
-const Bill = require('../models/billModle');
+const Bill = require('../models/billModle').default;
 const axios = require('axios');
 const User = require('../models/userModel');
 const db = require('../models');
@@ -7,7 +7,7 @@ const UserAPI = db.UserAPI;
 
 const saveBillAndSendToAPI = async (req, res) => {
   try {
-    const { data: filename, email } = req.body; // Destructure data and email from the request body
+    const { data: filename, email,file_name } = req.body; // Destructure data and email from the request body
 
     // Step 1: Find the API key and secret for the given email
     const userApi = await UserAPI.findOne({
@@ -15,13 +15,23 @@ const saveBillAndSendToAPI = async (req, res) => {
       attributes: ['email', 'api_key', 'api_secret']
     });
 
-     if (!userApi) {
+    // Step 2: Handle case where no API key and secret are found or they are missing
+    if (!userApi) {
       return res.status(404).json({ message: 'Not approved to upload. Please contact admin.' });
     }
 
-     userApi.api_key = userApi.api_key ;
+    // Set empty strings if api_key or api_secret are not found
+    userApi.api_key = userApi.api_key ;
     userApi.api_secret = userApi.api_secret ;
+
     
+   
+    
+
+    // Log the userApi to verify it has the correct keys
+    console.log("API Secret:", userApi.api_secret);
+    console.log("API Key:", userApi.api_key);
+
     // Loop through each JSON object (each row from the CSV)
     const results = await Promise.all(
       filename.map(async (row) => {
@@ -49,20 +59,39 @@ const saveBillAndSendToAPI = async (req, res) => {
             }
           });
 
-           const data = response.data;
+          // Extract relevant data from the response
+          const data = response.data;
           const { bill_id, confirmation_code, message } = data;
 
-          // If the API call was successful, return bill_id and confirmation_code
-          if (response.status === 200) {
-            return { bill_id, confirmation_code };
-          } else {
-            // Return the actual message from the API
-            return { bill_id: row.bill_id, message };
-          }
+          const billsTable = db.bills;  
+
+// If the API call was successful and returned a confirmation code, save the data to the database
+if (response.status === 200 && confirmation_code) {
+   await billsTable.create({
+    bill_id: row.bill_id,
+    bill_desc: row.bill_desc,
+    reason: row.reason,
+    amount_due: parseFloat(row.amount_due),
+    customer_id: row.customer_id,
+    name: row.name,
+    partial_pay_allowed: row.partial_pay_allowed.toLowerCase(),
+    due_date: new Date(row.due_date),
+    mobile: row.mobile,
+    email: row.email,
+    confirmation_code: confirmation_code,  
+    uploader: email,  
+    createdAt: new Date(),
+    file_name:file_name
+  });
+
+   return { bill_id, confirmation_code };
+} else {
+   return { bill_id: row.bill_id, message };
+}
+
         } catch (error) {
           console.error('Error processing row:', row, error);
-          
-          return { bill_id: row.bill_id, message: error.response?.data?.message || 'An error occurred' };
+           return { bill_id: row.bill_id, message: error.response?.data?.message || 'An error occurred' };
         }
       })
     );
